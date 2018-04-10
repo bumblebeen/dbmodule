@@ -25,6 +25,42 @@ app.post('/todos', (req, res) => {
     });
 });
 
+app.put('/todos/:id', (req, res) => {
+    db('todos')
+        .where('id', '=', req.params.id)
+        .update({
+            title: req.body.title,
+            user_id: req.body.user_id,
+            completed: req.body.completed
+        })
+    .then((todos) => {
+        return res.json(todos);
+    })
+    .catch(err => res.json(err));
+});
+
+app.delete('/todos/:id', (req, res) => {
+    db('todos')
+        .where({
+            id: req.params.id,
+            user_id: req.body.user_id,
+        })
+        .del()
+    .then((todos) => {
+        return res.json(todos);
+    })
+    .catch(err => res.json(err));
+});
+
+app.get('/user/:id/todos', (req, res) => {
+    db.from('todos')
+        .innerJoin('users', 'todos.user_id', 'users.id')
+        .where('todos.user_id', req.params.id)
+        .then((todos) => {
+            return res.json(todos);
+        });
+});
+
 app.listen(PORT, () => {
     console.log('Listening at ', PORT);
 });
